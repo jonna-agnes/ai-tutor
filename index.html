@@ -1,0 +1,1201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Tutor - Personalized Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+
+      /* Scroll Progress */
+      .scroll-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 4px;
+        z-index: 50;
+        transition: all 0.1s;
+        background: linear-gradient(90deg, #f97316, #ef4444, #ec4899);
+      }
+
+      /* Cursor Glow */
+      .cursor-glow {
+        position: fixed;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 40;
+        background: radial-gradient(
+          circle,
+          rgba(249, 115, 22, 0.06) 0%,
+          transparent 70%
+        );
+        transform: translate(-50%, -50%);
+      }
+      @media (max-width: 1024px) {
+        .cursor-glow {
+          display: none;
+        }
+      }
+
+      /* Dot Pattern */
+      .dot-pattern {
+        position: fixed;
+        inset: 0;
+        opacity: 0.03;
+        pointer-events: none;
+        background-image: radial-gradient(circle, #f97316 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+
+      /* Animations */
+      .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(32px);
+        transition: all 0.7s ease-out;
+      }
+      .animate-on-scroll.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .animate-on-scroll-left {
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: all 0.7s ease-out;
+      }
+      .animate-on-scroll-left.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .animate-on-scroll-right {
+        opacity: 0;
+        transform: translateX(48px);
+        transition: all 0.7s ease-out;
+      }
+      .animate-on-scroll-right.visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      /* Bounce Animation */
+      @keyframes bounce-slow {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      .animate-bounce-slow {
+        animation: bounce-slow 3s ease-in-out infinite;
+      }
+      .animate-bounce-slower {
+        animation: bounce-slow 4s ease-in-out infinite;
+      }
+
+      /* Background Blobs */
+      .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+      }
+
+      /* Grid Pattern */
+      .grid-pattern {
+        position: absolute;
+        inset: 0;
+        opacity: 0.02;
+        background-image:
+          linear-gradient(rgba(249, 115, 22, 0.5) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(249, 115, 22, 0.5) 1px, transparent 1px);
+        background-size: 60px 60px;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#FAFBFC] text-[#0F172A] overflow-x-hidden">
+    <!-- Scroll Progress -->
+    <div id="scrollProgress" class="scroll-progress" style="width: 0%"></div>
+
+    <!-- Cursor Glow -->
+    <div id="cursorGlow" class="cursor-glow"></div>
+
+    <!-- Dot Pattern -->
+    <div class="dot-pattern"></div>
+
+    <!-- Hero Section -->
+    <section
+      id="hero"
+      class="relative min-h-screen flex items-center pt-24 overflow-hidden"
+    >
+      <!-- Background Elements -->
+      <div class="absolute inset-0">
+        <div class="blob top-20 left-1/4 w-96 h-96 bg-orange-500/10"></div>
+        <div class="blob top-40 right-1/4 w-64 h-64 bg-red-500/10"></div>
+        <div class="blob bottom-20 left-1/3 w-80 h-80 bg-pink-500/5"></div>
+      </div>
+      <div class="grid-pattern"></div>
+
+      <div class="relative w-full px-6 lg:px-12">
+        <div
+          class="flex flex-col lg:flex-row items-center gap-12 max-w-7xl mx-auto"
+        >
+          <!-- Left Content -->
+          <div class="w-full lg:w-1/2">
+            <h1
+              class="animate-on-scroll text-4xl lg:text-6xl xl:text-7xl font-bold leading-[0.95] mb-6"
+            >
+              Learning That <br />
+              <span
+                class="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500"
+                >Adapts to You</span
+              >
+            </h1>
+            <p
+              class="animate-on-scroll text-lg text-slate-600 mb-8 max-w-lg leading-relaxed"
+              style="transition-delay: 200ms"
+            >
+              An AI-powered learning companion that brings personalized,
+              accessible education to everyone. Voice-first, mobile-optimized,
+              and designed for emerging economies.
+            </p>
+            <!-- Trust Indicators -->
+            <div
+              class="animate-on-scroll flex items-center gap-6"
+              style="transition-delay: 400ms"
+            >
+              <div class="flex -space-x-2">
+                <div
+                  class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-400 border-2 border-white flex items-center justify-center text-white text-xs font-bold"
+                >
+                  A
+                </div>
+                <div
+                  class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-400 border-2 border-white flex items-center justify-center text-white text-xs font-bold"
+                >
+                  B
+                </div>
+                <div
+                  class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-400 border-2 border-white flex items-center justify-center text-white text-xs font-bold"
+                >
+                  C
+                </div>
+                <div
+                  class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-400 border-2 border-white flex items-center justify-center text-white text-xs font-bold"
+                >
+                  D
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center gap-1">
+                  <svg
+                    class="w-4 h-4 fill-orange-400 text-orange-400"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    />
+                  </svg>
+                  <svg
+                    class="w-4 h-4 fill-orange-400 text-orange-400"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    />
+                  </svg>
+                  <svg
+                    class="w-4 h-4 fill-orange-400 text-orange-400"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    />
+                  </svg>
+                  <svg
+                    class="w-4 h-4 fill-orange-400 text-orange-400"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    />
+                  </svg>
+                  <svg
+                    class="w-4 h-4 fill-orange-400 text-orange-400"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                    />
+                  </svg>
+                </div>
+                <p class="text-sm text-slate-500">
+                  Trusted by 10,000+ learners
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Content - Hero Image -->
+          <div class="w-full lg:w-1/2 relative">
+            <div
+              class="animate-on-scroll-right relative"
+              style="transition-delay: 200ms"
+            >
+              <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+                <img
+                  src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=800&q=80"
+                  alt="Student learning with AI tutor"
+                  class="w-full h-[50vh] lg:h-[60vh] object-cover"
+                />
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-orange-900/20 to-transparent"
+                ></div>
+              </div>
+              <!-- Floating Badges -->
+              <div
+                class="absolute -top-4 -right-4 bg-white rounded-2xl p-4 shadow-xl border border-orange-100 animate-bounce-slow"
+              >
+                <div class="flex items-center gap-2">
+                  <div
+                    class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-5 h-5 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm font-semibold">Lesson Complete!</p>
+                    <p class="text-xs text-slate-500">+50 XP earned</p>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="absolute -bottom-4 -left-4 bg-white rounded-2xl p-4 shadow-xl border border-orange-100 animate-bounce-slower"
+              >
+                <div class="flex items-center gap-2">
+                  <svg
+                    class="w-8 h-8 text-orange-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                    ></path>
+                  </svg>
+                  <div>
+                    <p class="text-sm font-semibold">AI Tutor Active</p>
+                    <p class="text-xs text-slate-500">
+                      Personalizing content...
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-white border-y border-slate-100">
+      <div class="w-full px-6 lg:px-12">
+        <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div
+            class="animate-on-scroll text-center"
+            style="transition-delay: 0ms"
+          >
+            <div
+              class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center mx-auto mb-3"
+            >
+              <svg
+                class="w-6 h-6 text-orange-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6v6l4 2"
+                />
+              </svg>
+            </div>
+            <div class="text-3xl lg:text-4xl font-bold text-slate-900">
+              3-5<span class="text-orange-500">min</span>
+            </div>
+            <p class="text-sm text-slate-500 mt-1">Microlearning Sessions</p>
+          </div>
+          <div
+            class="animate-on-scroll text-center"
+            style="transition-delay: 100ms"
+          >
+            <div
+              class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center mx-auto mb-3"
+            >
+              <svg
+                class="w-6 h-6 text-orange-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2 12h20"
+                />
+              </svg>
+            </div>
+            <div class="text-3xl lg:text-4xl font-bold text-slate-900">
+              24/7
+            </div>
+            <p class="text-sm text-slate-500 mt-1">AI Availability</p>
+          </div>
+          <div
+            class="animate-on-scroll text-center"
+            style="transition-delay: 200ms"
+          >
+            <div
+              class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center mx-auto mb-3"
+            >
+              <svg
+                class="w-6 h-6 text-orange-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v8m-4-4h8"
+                />
+              </svg>
+            </div>
+            <div class="text-3xl lg:text-4xl font-bold text-slate-900">
+              100<span class="text-orange-500">%</span>
+            </div>
+            <p class="text-sm text-slate-500 mt-1">Personalized Learning</p>
+          </div>
+          <div
+            class="animate-on-scroll text-center"
+            style="transition-delay: 300ms"
+          >
+            <div
+              class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center mx-auto mb-3"
+            >
+              <svg
+                class="w-6 h-6 text-orange-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2 12h20"
+                />
+              </svg>
+            </div>
+            <div class="text-3xl lg:text-4xl font-bold text-slate-900">
+              50<span class="text-orange-500">+</span>
+            </div>
+            <p class="text-sm text-slate-500 mt-1">Languages Supported</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="py-24 lg:py-32">
+      <div class="w-full px-6 lg:px-12">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="animate-on-scroll text-3xl lg:text-5xl font-bold mb-12 text-center"
+          >
+            Traditional Education
+            <span class="text-slate-400">Falls Short</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div
+              class="animate-on-scroll-left p-6 rounded-2xl bg-white border border-slate-100 flex items-center gap-4 hover:border-orange-200 hover:shadow-lg transition-all"
+              style="transition-delay: 0ms"
+            >
+              <div
+                class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0"
+              >
+                <span class="text-red-500 font-bold">!</span>
+              </div>
+              <span class="text-slate-600"
+                >One-size-fits-all education fails diverse learners</span
+              >
+            </div>
+            <div
+              class="animate-on-scroll-left p-6 rounded-2xl bg-white border border-slate-100 flex items-center gap-4 hover:border-orange-200 hover:shadow-lg transition-all"
+              style="transition-delay: 100ms"
+            >
+              <div
+                class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0"
+              >
+                <span class="text-red-500 font-bold">!</span>
+              </div>
+              <span class="text-slate-600"
+                >Limited access to quality tutoring in remote areas</span
+              >
+            </div>
+            <div
+              class="animate-on-scroll-left p-6 rounded-2xl bg-white border border-slate-100 flex items-center gap-4 hover:border-orange-200 hover:shadow-lg transition-all"
+              style="transition-delay: 200ms"
+            >
+              <div
+                class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0"
+              >
+                <span class="text-red-500 font-bold">!</span>
+              </div>
+              <span class="text-slate-600"
+                >High cost of personalized education</span
+              >
+            </div>
+            <div
+              class="animate-on-scroll-left p-6 rounded-2xl bg-white border border-slate-100 flex items-center gap-4 hover:border-orange-200 hover:shadow-lg transition-all"
+              style="transition-delay: 300ms"
+            >
+              <div
+                class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0"
+              >
+                <span class="text-red-500 font-bold">!</span>
+              </div>
+              <span class="text-slate-600"
+                >Language barriers in traditional learning</span
+              >
+            </div>
+            <div
+              class="animate-on-scroll-left p-6 rounded-2xl bg-white border border-slate-100 flex items-center gap-4 hover:border-orange-200 hover:shadow-lg transition-all"
+              style="transition-delay: 400ms"
+            >
+              <div
+                class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0"
+              >
+                <span class="text-red-500 font-bold">!</span>
+              </div>
+              <span class="text-slate-600"
+                >Low engagement with static content</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section class="py-24 lg:py-32 bg-slate-50">
+      <div class="w-full px-6 lg:px-12">
+        <div class="max-w-6xl mx-auto">
+          <div class="text-center mb-16">
+            <p
+              class="animate-on-scroll text-orange-600 font-mono text-sm uppercase tracking-wider mb-3"
+            >
+              Core Capabilities
+            </p>
+            <h2
+              class="animate-on-scroll text-3xl lg:text-5xl font-bold mb-4"
+              style="transition-delay: 100ms"
+            >
+              Everything You Need to
+              <span class="text-orange-500">Learn Smarter</span>
+            </h2>
+            <p
+              class="animate-on-scroll text-slate-600 max-w-2xl mx-auto"
+              style="transition-delay: 200ms"
+            >
+              Dual-AI architecture combining Generative tutoring with
+              Discriminative personalization for a truly adaptive learning
+              experience.
+            </p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Feature 1 -->
+            <div
+              class="animate-on-scroll group p-6 lg:p-8 bg-white rounded-2xl border border-slate-100 hover:border-orange-200 hover:shadow-xl transition-all"
+              style="transition-delay: 0ms"
+            >
+              <div
+                class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  class="w-7 h-7 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold mb-3">Generative AI Tutor</h3>
+              <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                Adaptive conversational tutoring with Socratic questioning that
+                guides students to discover answers.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Socratic Dialogue</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Dynamic Content</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Multi-turn Context</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Active Reasoning</span
+                >
+              </div>
+            </div>
+            <!-- Feature 2 -->
+            <div
+              class="animate-on-scroll group p-6 lg:p-8 bg-white rounded-2xl border border-slate-100 hover:border-orange-200 hover:shadow-xl transition-all"
+              style="transition-delay: 100ms"
+            >
+              <div
+                class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  class="w-7 h-7 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold mb-3">Personalization Engine</h3>
+              <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                Deep learning-based profiling that adapts to each learner's
+                pace, style, and knowledge gaps.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Learner Profiling</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Progress Tracking</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Smart Recommendations</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Gap Analysis</span
+                >
+              </div>
+            </div>
+            <!-- Feature 3 -->
+            <div
+              class="animate-on-scroll group p-6 lg:p-8 bg-white rounded-2xl border border-slate-100 hover:border-orange-200 hover:shadow-xl transition-all"
+              style="transition-delay: 200ms"
+            >
+              <div
+                class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  class="w-7 h-7 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold mb-3">Voice-First Learning</h3>
+              <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                Speech recognition and synthesis for hands-free learning,
+                perfect for low-literacy contexts.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Speech Recognition</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Text-to-Speech</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Multilingual</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Accessibility First</span
+                >
+              </div>
+            </div>
+            <!-- Feature 4 -->
+            <div
+              class="animate-on-scroll group p-6 lg:p-8 bg-white rounded-2xl border border-slate-100 hover:border-orange-200 hover:shadow-xl transition-all"
+              style="transition-delay: 300ms"
+            >
+              <div
+                class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  class="w-7 h-7 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold mb-3">Microlearning Engine</h3>
+              <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                Intelligent content chunking with spaced repetition for optimal
+                knowledge retention.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Content Chunking</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Spaced Repetition</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Adaptive Quizzes</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Retention Analytics</span
+                >
+              </div>
+            </div>
+            <!-- Feature 5 -->
+            <div
+              class="animate-on-scroll group p-6 lg:p-8 bg-white rounded-2xl border border-slate-100 hover:border-orange-200 hover:shadow-xl transition-all"
+              style="transition-delay: 400ms"
+            >
+              <div
+                class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  class="w-7 h-7 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold mb-3">Ethical AI Framework</h3>
+              <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                Privacy-by-design with bias monitoring, hallucination detection,
+                and transparent AI decisions.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Bias Monitoring</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Privacy First</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Explainable AI</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Safe Content</span
+                >
+              </div>
+            </div>
+            <!-- Feature 6 -->
+            <div
+              class="animate-on-scroll group p-6 lg:p-8 bg-white rounded-2xl border border-slate-100 hover:border-orange-200 hover:shadow-xl transition-all"
+              style="transition-delay: 500ms"
+            >
+              <div
+                class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform"
+              >
+                <svg
+                  class="w-7 h-7 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold mb-3">Learning Analytics</h3>
+              <p class="text-slate-600 text-sm mb-4 leading-relaxed">
+                Real-time insights into learning patterns, engagement metrics,
+                and outcome predictions.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Engagement Metrics</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Outcome Prediction</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Progress Reports</span
+                >
+                <span
+                  class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                  >Intervention Alerts</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Learning Journey -->
+    <section class="py-24 lg:py-32">
+      <div class="w-full px-6 lg:px-12">
+        <div class="max-w-6xl mx-auto">
+          <div class="text-center mb-16">
+            <p
+              class="animate-on-scroll text-orange-600 font-mono text-sm uppercase tracking-wider mb-3"
+            >
+              How It Works
+            </p>
+            <h2
+              class="animate-on-scroll text-3xl lg:text-5xl font-bold mb-4"
+              style="transition-delay: 100ms"
+            >
+              Your Learning Journey
+            </h2>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div
+              class="animate-on-scroll relative p-6 rounded-2xl bg-white border border-slate-100 hover:border-orange-200 transition-all"
+              style="transition-delay: 0ms"
+            >
+              <div class="text-5xl font-bold text-orange-100 mb-4">01</div>
+              <h3 class="text-xl font-bold mb-2">Assessment</h3>
+              <p class="text-slate-600 text-sm">
+                AI evaluates your knowledge, learning style, and goals
+              </p>
+              <div
+                class="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2"
+              >
+                <svg
+                  class="w-6 h-6 text-slate-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+            <div
+              class="animate-on-scroll relative p-6 rounded-2xl bg-white border border-slate-100 hover:border-orange-200 transition-all"
+              style="transition-delay: 100ms"
+            >
+              <div class="text-5xl font-bold text-orange-100 mb-4">02</div>
+              <h3 class="text-xl font-bold mb-2">Personalization</h3>
+              <p class="text-slate-600 text-sm">
+                Custom learning path created just for you
+              </p>
+              <div
+                class="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2"
+              >
+                <svg
+                  class="w-6 h-6 text-slate-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+            <div
+              class="animate-on-scroll relative p-6 rounded-2xl bg-white border border-slate-100 hover:border-orange-200 transition-all"
+              style="transition-delay: 200ms"
+            >
+              <div class="text-5xl font-bold text-orange-100 mb-4">03</div>
+              <h3 class="text-xl font-bold mb-2">Microlearning</h3>
+              <p class="text-slate-600 text-sm">
+                Bite-sized lessons delivered at optimal intervals
+              </p>
+              <div
+                class="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2"
+              >
+                <svg
+                  class="w-6 h-6 text-slate-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+            <div
+              class="animate-on-scroll relative p-6 rounded-2xl bg-white border border-slate-100 hover:border-orange-200 transition-all"
+              style="transition-delay: 300ms"
+            >
+              <div class="text-5xl font-bold text-orange-100 mb-4">04</div>
+              <h3 class="text-xl font-bold mb-2">AI Tutoring</h3>
+              <p class="text-slate-600 text-sm">
+                Conversational guidance through challenging concepts
+              </p>
+              <div
+                class="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2"
+              >
+                <svg
+                  class="w-6 h-6 text-slate-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+            <div
+              class="animate-on-scroll relative p-6 rounded-2xl bg-white border border-slate-100 hover:border-orange-200 transition-all"
+              style="transition-delay: 400ms"
+            >
+              <div class="text-5xl font-bold text-orange-100 mb-4">05</div>
+              <h3 class="text-xl font-bold mb-2">Practice</h3>
+              <p class="text-slate-600 text-sm">
+                Adaptive quizzes and interactive exercises
+              </p>
+              <div
+                class="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2"
+              >
+                <svg
+                  class="w-6 h-6 text-slate-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+            <div
+              class="animate-on-scroll p-6 rounded-2xl bg-white border border-slate-100 hover:border-orange-200 transition-all"
+              style="transition-delay: 500ms"
+            >
+              <div class="text-5xl font-bold text-orange-100 mb-4">06</div>
+              <h3 class="text-xl font-bold mb-2">Mastery</h3>
+              <p class="text-slate-600 text-sm">
+                Track progress and achieve learning goals
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Target Audience -->
+    <section class="py-24 lg:py-32 bg-slate-50">
+      <div class="w-full px-6 lg:px-12">
+        <div class="max-w-6xl mx-auto">
+          <h2
+            class="animate-on-scroll text-3xl lg:text-5xl font-bold text-center mb-16"
+          >
+            Built for <span class="text-orange-500">Every Learner</span>
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div
+              class="animate-on-scroll p-6 rounded-2xl bg-white border border-slate-100 text-center hover:border-orange-200 hover:shadow-lg transition-all"
+              style="transition-delay: 0ms"
+            >
+              <div
+                class="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center mx-auto mb-4"
+              >
+                <svg
+                  class="w-7 h-7 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                  <path
+                    d="M12 14l6.16-3.422A12.083 12.083 0 0112 21.5a12.083 12.083 0 01-6.16-10.922L12 14z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold mb-2">K-12 Students</h3>
+              <p class="text-sm text-slate-600">
+                Supplement classroom learning with personalized tutoring
+              </p>
+            </div>
+            <div
+              class="animate-on-scroll p-6 rounded-2xl bg-white border border-slate-100 text-center hover:border-orange-200 hover:shadow-lg transition-all"
+              style="transition-delay: 100ms"
+            >
+              <div
+                class="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center mx-auto mb-4"
+              >
+                <svg
+                  class="w-7 h-7 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold mb-2">College Students</h3>
+              <p class="text-sm text-slate-600">
+                24/7 academic support for complex subjects
+              </p>
+            </div>
+            <div
+              class="animate-on-scroll p-6 rounded-2xl bg-white border border-slate-100 text-center hover:border-orange-200 hover:shadow-lg transition-all"
+              style="transition-delay: 200ms"
+            >
+              <div
+                class="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center mx-auto mb-4"
+              >
+                <svg
+                  class="w-7 h-7 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                  <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold mb-2">Working Professionals</h3>
+              <p class="text-sm text-slate-600">
+                Upskill and reskill with bite-sized learning
+              </p>
+            </div>
+            <div
+              class="animate-on-scroll p-6 rounded-2xl bg-white border border-slate-100 text-center hover:border-orange-200 hover:shadow-lg transition-all"
+              style="transition-delay: 300ms"
+            >
+              <div
+                class="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center mx-auto mb-4"
+              >
+                <svg
+                  class="w-7 h-7 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-bold mb-2">Lifelong Learners</h3>
+              <p class="text-sm text-slate-600">
+                Explore new subjects at your own pace
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 lg:py-32 bg-slate-50">
+      <div class="w-full px-6 lg:px-12">
+        <div class="max-w-4xl mx-auto">
+          <div
+            class="animate-on-scroll relative p-8 md:p-12 rounded-3xl bg-gradient-to-br from-orange-500/20 via-red-500/10 to-orange-500/5 border border-orange-200 overflow-hidden"
+          >
+            <div
+              class="absolute top-0 right-0 w-64 h-64 bg-orange-400/10 rounded-full blur-3xl"
+            ></div>
+            <div
+              class="absolute bottom-0 left-0 w-48 h-48 bg-red-400/10 rounded-full blur-3xl"
+            ></div>
+            <div class="relative text-center">
+              <h2 class="text-2xl md:text-4xl font-bold mb-4">
+                Ready to Transform Your Learning?
+              </h2>
+              <p class="text-slate-600 mb-8 max-w-2xl mx-auto">
+                Join thousands of learners already using AI Tutor to achieve
+                their educational goals. Start your personalized learning
+                journey today.
+              </p>
+              <div class="flex flex-wrap justify-center gap-4">
+                <a
+                  href="https://aimsforall.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="group px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-orange-500/30 transition-all duration-300 flex items-center gap-2"
+                >
+                  Try Out Now
+                  <svg
+                    class="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    ></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // Scroll Progress
+      const scrollProgress = document.getElementById("scrollProgress");
+      window.addEventListener(
+        "scroll",
+        () => {
+          const scrollTop = window.scrollY;
+          const docHeight =
+            document.documentElement.scrollHeight - window.innerHeight;
+          const progress = (scrollTop / docHeight) * 100;
+          scrollProgress.style.width = progress + "%";
+        },
+        { passive: true },
+      );
+
+      // Cursor Glow
+      const cursorGlow = document.getElementById("cursorGlow");
+      document.addEventListener("mousemove", (e) => {
+        cursorGlow.style.left = e.clientX + "px";
+        cursorGlow.style.top = e.clientY + "px";
+      });
+
+      // Intersection Observer for animations
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: "0px 0px -30px 0px" },
+      );
+
+      document
+        .querySelectorAll(
+          ".animate-on-scroll, .animate-on-scroll-left, .animate-on-scroll-right",
+        )
+        .forEach((el) => {
+          observer.observe(el);
+        });
+    </script>
+  </body>
+</html>
